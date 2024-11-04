@@ -32,7 +32,7 @@ endif::[]
 == Introduction
 
 [.lead]
-In this tutorial we will understand a little about {Snowplow} [.underline]#by running it locally#.
+In this tutorial, we will understand a little about {Snowplow} [.underline]#by running it locally#. We will explore some examples in JavaScript and Java and, finally, <<whatsapp-bot,adapt a WhatsApp bot's code to use Snowplow>>.
 
 {Snowplow} is the leader in next-generation customer data infrastructure (CDI), enabling every data-driven organization to own and unlock the value of its customer behavioral data to fuel AI, advanced analytics, and personalized experiences from their central data platform.
 
@@ -83,7 +83,7 @@ In the page http://localhost:3000/, configure the collector endpoint URI to http
 References: <<snowplow-javascript-tracker>>
 
 [[convert-tsv]]
-=== Converting the generated TSV file to CSV:
+=== Converting the generated TSV file to CSV
 
 [,console]
 ----
@@ -118,7 +118,12 @@ done
 References: <<snowbridge>>
 
 <<<
-== Tracking events in a WhatsApp bot
+[[whatsapp-bot]]
+== Behavioral data from a user interacting with a WhatsApp Bot
+
+In this section, we will https://snowplow.io/what-is-behavioral-data[understand behavioral data] through a user's interaction with a WhatsApp bot. Then, we will modify the bot's code to use Snowplow.
+
+Here is the bot's initial code: https://github.com/paulojeronimo/venom-bot1.
 
 <<<
 == References
