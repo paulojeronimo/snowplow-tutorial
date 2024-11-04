@@ -1,0 +1,150 @@
+= Snowplow Tutorial
+Paulo Jerônimo <paulojeronimo@gmail.com>
+:icons: font
+:idprefix:
+:idseparator: -
+:source-highlighter: rouge
+:numbered:
+:toc: left
+ifdef::backend-pdf[]
+:toc-title!:
+:toc: macro
+endif::[]
+ifdef::backend-html5[]
+:nofooter:
+endif::[]
+:Snowplow: https://snowplow.io/[Snowplow]
+
+ifdef::backend-pdf[]
+[.text-center]
+*Author: {author} ({email})* +
+*link:index.html[HTML version]*
+
+****
+toc::[]
+****
+endif::[]
+ifdef::backend-html5[]
+[.text-center]
+*link:snowplow-tutorial.pdf[PDF version]*
+endif::[]
+
+== Introduction
+
+[.lead]
+In this tutorial we will understand a little about {Snowplow} [.underline]#by running it locally#.
+
+{Snowplow} is the leader in next-generation customer data infrastructure (CDI), enabling every data-driven organization to own and unlock the value of its customer behavioral data to fuel AI, advanced analytics, and personalized experiences from their central data platform.
+
+Thousands of organizations like https://snowplow.io/customers/burberry[Burberry], https://snowplow.io/customers/strava[Strava], and https://snowplow.io/customers/autotrader[Auto Trader] rely on Snowplow to collect, manage, and operationalize real-time event data from their central data platform to uncover deeper customer journey insights, predict customer behaviors, deliver differentiated customer experiences, and detect fraudulent activities.
+
+<<<
+== Getting started
+
+[,console]
+----
+$ docker run --rm -p 9090:9090 snowplow/snowplow-micro:2.1.2 \
+  --output-tsv 2> /dev/null | tee data.tsv
+----
+
+See <<tsv-format,details regarding TSV format (tsv-format)>>.
+You can <<convert-tsv,convert it to a CSV>>, if you want.
+
+Open http://localhost:9090/micro/ui
+
+References: <<snowplow-micro>>
+
+=== Testing events sent through a Java application
+
+[,console]
+----
+$ mkdir examples && cd $_
+$ git clone https://github.com/snowplow/snowplow-java-tracker.git
+$ cd snowplow-java-tracker/examples/simple-console
+$ ./gradlew jar
+$ java -jar ./build/libs/simple-console-all-0.0.1.jar "http://localhost:9090"
+----
+
+References: <<snowplow-java-tracker>>
+
+=== Testing events sent through a React application
+
+[,console]
+----
+$ cd ~/labs/snowplow-tutorial/examples
+$ git clone https://github.com/snowplow-incubator/snowplow-javascript-tracker-examples.git
+$ cd snowplow-javascript-tracker-examples/react
+$ yarn
+$ yarn start
+----
+
+In the page http://localhost:3000/, configure the collector endpoint URI to http://localhost:9090.
+
+References: <<snowplow-javascript-tracker>>
+
+[[convert-tsv]]
+=== Converting the generated TSV file to CSV:
+
+[,console]
+----
+$ sudo apt -y install csvkit
+$ csvformat -t < data.tsv > data.csv
+----
+
+<<<
+== Testing Snowbridge locally
+
+[,console]
+----
+$ docker run \
+  --env SNOWBRIDGE_CONFIG_FILE="" \
+  --env ACCEPT_LIMITED_USE_LICENSE=yes \
+  -i snowplow/snowbridge:2.4.2 \
+  < data.tsv > output.txt
+----
+
+The generated output adds some keys to the data. See them:
+
+[,console]
+----
+$ for key in PartitionKey TimeCreated TimePulled TimeTransformed
+do
+    echo searching $key ...
+    grep $key output.txt
+    read -p 'Press <ENTER>'
+done
+----
+
+References: <<snowbridge>>
+
+<<<
+== Tracking events in a WhatsApp bot
+
+<<<
+== References
+
+YouTube videos::
+. https://www.youtube.com/watch?v=zkarYQ63rvM +
+  Oct 24, 2022 - Behavioral Data Creation for AI | Snowplow Co-Founder & CEO Alex Dean
+. https://www.youtube.com/watch?v=IsXpyt3hYcA +
+  Mar 19, 2022 - Snowplow: Alex Dean Session at the Open Source Data Stack Conference 2021
+
+Snowplow documents and Git repositories::
+. [[snowplow-micro]] *snowplow-micro*:
+.. https://docs.snowplow.io/docs/testing-debugging/snowplow-micro/what-is-micro/
+.. https://docs.snowplow.io/docs/testing-debugging/snowplow-micro/basic-usage/
+.. https://docs.snowplow.io/docs/testing-debugging/snowplow-micro/ui/
+.. https://docs.snowplow.io/docs/understanding-your-pipeline/canonical-event/understanding-the-enriched-tsv-format/ *<- tsv-format*
+
+. [[snowplow-java-tracker]] *snowplow-java-tracker*:
+.. https://docs.snowplow.io/docs/collecting-data/collecting-from-own-applications/java-tracker/demos/
+... https://github.com/snowplow/snowplow-java-tracker/tree/master
+
+. [[snowplow-javascript-tracker]] *snowplow-javascript-tracker*:
+.. https://docs.snowplow.io/docs/collecting-data/collecting-from-own-applications/javascript-trackers/
+... https://github.com/snowplow-incubator/snowplow-javascript-tracker-examples
+
+. [[snowbridge]] *snowbridge*:
+.. https://docs.snowplow.io/docs/destinations/forwarding-events/snowbridge/
+... https://docs.snowplow.io/docs/destinations/forwarding-events/snowbridge/concepts/application-overview/
+... https://docs.snowplow.io/docs/destinations/forwarding-events/snowbridge/configuration/
